@@ -1,0 +1,33 @@
+---
+title: "P8105_HW3_HL2710"
+author: "Ainsel Levitskaia-Collins, HL2710"
+date: "2025-10-08"
+output: github_document
+---
+
+### Preliminary Setup
+
+Adjusting settings such that figures and graphs will be readable:
+
+```{r}
+library(tidyverse)
+
+knitr::opts_chunk$set(
+  fig.width = 6,
+  fig.asp = .6,
+  out.width = "90%"
+)
+
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
+
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis"
+)
+
+scale_colour_discrete = scale_colour_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
+```
+
+### Problem 1
+
