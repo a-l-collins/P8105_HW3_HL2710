@@ -9,7 +9,7 @@ output: github_document
 
 Adjusting settings such that figures and graphs will be readable:
 
-```{r}
+```{r message = FALSE}
 library(tidyverse)
 
 knitr::opts_chunk$set(
@@ -30,4 +30,57 @@ scale_fill_discrete = scale_fill_viridis_d
 ```
 
 ### Problem 1
+
+Loading the dataset that will be used in this problem:
+
+```{r}
+library(p8105.datasets)
+data("instacart")
+```
+
+The `instacart` dataset has `r nrow(instacart)` observations of `r ncol(instacart)` variables. The variables include information such as which user made the order (`user_id`), which items are in the cart (`product_id`), whether these items are being reordered (`reordered`), the name of the product (`product_name`), and other such information. For example, the first item added to user 112108's cart was Bulgarian Yogurt with a product ID of 49302, and this is a reordered item.
+
+#### Determining Aisle Information
+
+First, producing a dataset with number of items ordered per aisle:
+
+```{r}
+instacart_aislecounts <- instacart %>% 
+  count(aisle, name = "num_items_ordered") %>% 
+  arrange(desc(num_items_ordered))
+```
+
+Then, selecting the top 5 most popular aisles:
+
+```{r}
+instacart_aislecounts %>% slice_head(n = 5)
+```
+
+There are `r nrow(instacart_aislecounts)` aisles within the `instacart` dataset, and the top 5 aisles that the most items are ordered from are fresh vegetables, fresh fruits, packaged vegetables and fruits, yogurt, and packaged cheese.
+
+#### Number of Ordered Items per Aisle
+
+Creating a plot that shows the number of items ordered per aisle, limited to only aisles with more than 10,000 items ordered:
+
+```{r}
+instacart_aislecounts %>% 
+  filter(num_items_ordered > 10000) %>% 
+  mutate(aisle = fct_reorder(aisle, desc(num_items_ordered))) %>% 
+  ggplot(aes(x = aisle, y = num_items_ordered)) +
+  geom_bar(stat = "identity", fill = "chartreuse3", width = .4) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
+  xlab("") +
+  ylab("Number of Items Ordered")
+```
+
+#### Table of Most Popular Items
+
+Creating a table of the three most popular items in the aisles “baking ingredients”, “dog food care”, and “packaged vegetables fruits”.
+
+```{r}
+test <- instacart %>% 
+  filter(aisle == c("baking ingredients", "dog food care", "packaged vegetables fruits")) %>% 
+  group_by(aisle) %>% 
+  filter(max_rank(product_name))
+```
 
