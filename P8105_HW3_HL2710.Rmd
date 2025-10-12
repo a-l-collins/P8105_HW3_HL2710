@@ -77,10 +77,61 @@ instacart_aislecounts %>%
 
 Creating a table of the three most popular items in the aisles “baking ingredients”, “dog food care”, and “packaged vegetables fruits”.
 
+1. Keeping only the desired aisles
+1. Counting by `product_name` after grouping by `aisle` and `product_name` so that every product has an associated number of times it was ordered
+1. Keeping only the three most popular items per aisle
+1. Converting from long to wide format for readability
+
+First, creating a database with information on aisle name, product name, and how many times each item has been ordered:
+
 ```{r}
-test <- instacart %>% 
+instacart_popular <- instacart %>% 
   filter(aisle == c("baking ingredients", "dog food care", "packaged vegetables fruits")) %>% 
   group_by(aisle) %>% 
-  filter(max_rank(product_name))
+  count(product_name, name = "num_items_ordered") %>% 
+  arrange(desc(num_items_ordered)) %>% 
+  filter(min_rank(desc(num_items_ordered)) < 4)
+```
+
+Creating a table to display this information:
+
+```{r}
+knitr::kable(
+  instacart_popular,
+  col.names = c("Aisle", "Product Name", "Number of Items Ordered")
+)
+```
+
+
+### Table of Mean hr Day per Week when Pink Lady Apples and Coffee Ice Cream are Ordered
+
+Creating a table in which, for every day of the week, the mean hour of the day at which Pink Lady Apples and Coffee Ice Cream are ordered is displayed.
+
+1. Keeping only the desired products
+1. Grouping by day of week
+1. Creating a mean time of order variable
+1. Using `pivot_wider` to make the data human-readable
+
+I would like to note that while under normal circumstances, I would have renamed the `order_dow` contents from 0-6 to corresponding days of the week, I could not find any confirmation online for whether 0 corresponded to Monday, Sunday, or something else, and have as such chosen to leave `order_dow` in its numerical format.
+
+```{r warning = FALSE, message = FALSE}
+instacart_times <- instacart %>% 
+  filter(product_name == c("Pink Lady Apples", "Coffee Ice Cream")) %>% 
+  group_by(product_name, order_dow) %>% 
+  summarize(mean_time = mean(order_hour_of_day, na.rm = TRUE)) %>% 
+  pivot_wider(
+    names_from = "product_name",
+    values_from = "mean_time"
+  )
+```
+
+Creating a table to display this information:
+
+```{r}
+knitr::kable(
+  instacart_times,
+  col.names = c("Day of Week", "Coffee Ice Cream (military time)", "Pink Lady Apples (military time)"),
+  digits = 0
+)
 ```
 
