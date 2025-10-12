@@ -204,6 +204,10 @@ There are `r sum(pull(zip_counts, times_observed) > 115)` zip codes observed 116
 
 Creating a database with the average rental price per year for each borough:
 
+1. Grouping by borough and year
+1. Finding the mean price for each year, per borough
+1. Converting to wide format for readability
+
 ```{r message = FALSE}
 avg_price_year <- zori_neat %>% 
   group_by(borough, year) %>% 
@@ -213,7 +217,6 @@ avg_price_year <- zori_neat %>%
     values_from = "mean_price"
   )
 ```
-
 
 Creating a table out of the database:
 
@@ -227,3 +230,41 @@ knitr::kable(
 
 Within this table, we can see that all boroughs have had an increase in rental price over the past 9 years. Queens has had the smallest overall rent increase, despite Staten Island not having data until 2020, and Manhattan has had the largest overall rent increase.
 
+#### Borough Rental Price Comparison across All Years
+
+Creating a dataset with the average rental price per borough, across all years:
+
+```{r warning = FALSE}
+avg_price_all_plot <- zori_neat %>% 
+  ggplot(aes(x = borough, y = rental_price)) +
+  geom_boxplot() +
+  labs(
+    title = "Borough Prices Across All Years (2015-2024)",
+    x = "Borough",
+    y = "Rental Price"
+  )
+
+avg_price_all_plot
+```
+
+Within this plot, the borough with the largest variation in rental prices is Manhattan, while the borough with the smallest variation in rental prices is Staten Island. The borough with the largest median rental price is Manhattan, while the borough with the smallest median rental price is the Bronx. All boroughs have outlier prices that are higher than the main quartiles, while none have outlier prices that are lower than the main quartiles.
+
+#### Borough Rental Price Comparison across 2023
+
+```{r warning = FALSE}
+avg_price_month_plot <- zori_neat %>% 
+  filter(year == 2023) %>% 
+  ggplot(aes(x = borough, y = rental_price)) +
+  geom_boxplot() +
+  labs(
+    title = "Borough Prices Across 2023",
+    x = "Borough",
+    y = "Rental Price"
+  )
+
+avg_price_month_plot
+```
+
+Within this plot, the borough with the largest variation in rental prices is Manhattan, and the borough with the smallest variation in rental prices is Staten Island. The Bronx, Staten Island, and Queens all have relatively similar and low median rental prices, while Manhattan's is the largest. The overall distribution of the five boroughs is similar in 2023 compared to the plot of all years, but there is more exaggeration of the differences between the boroughs within the 2023 plot, compared to the plot of all years.
+
+[[export plots]]
