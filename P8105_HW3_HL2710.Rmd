@@ -140,26 +140,14 @@ knitr::kable(
 
 Importing and cleaning the Zillow dataset, based on what was done in Homework 2:
 
-Importing and cleaning the `Zip Codes` dataset:
-
-1. Importing and cleaning
-1. Moving `zip_code` to the front
-1. Remove the `date` variable, as it is not relevant
-
-```{r message = FALSE}
-zipcodes <- 
-  read_csv("./data/Zip Codes.csv") %>% 
-  janitor::clean_names() %>% 
-  select(zip_code, everything()) %>% 
-  select(-file_date)
-```
-
 Importing and cleaning the `zori` dataset:
 
 1. Importing and cleaning
 1. Renaming `region_name` to `zip_code` to match the `zipcodes` dataset, and moving that variable to the front
 1. Converting the dates and rental prices from wide to long format
 1. Adjusting `county_name` to match the corresponding variable in the `zipcodes` dataset
+1. Renaming the `county` variable so that both the name and contents reflect the NYC boroughs
+1. Cleaning the dates so that year, month, and day are separate variables and appropriately named
 
 ```{r message = FALSE}
 zori <-
@@ -175,19 +163,67 @@ zori_neat <-
     x2015_01_31:x2024_08_31,
     names_to = "date",
     names_prefix = "x",
-    values_to = "rental_price")
+    values_to = "rental_price") %>% 
+  mutate(
+    county = case_match(county,
+      "Kings" ~ "Brooklyn",
+      "New York" ~ "Manhattan",
+      "Richmond" ~ "Staten Island",
+      "Bronx" ~ "Bronx",
+      "Queens" ~ "Queens")
+  ) %>% 
+  rename(borough = county) %>% 
+  separate_wider_delim(date, names = c("year", "month", "day"), delim = "_") %>% 
+  mutate(
+    month = case_match(month,
+      "01" ~ "January",
+      "02" ~ "February",
+      "03" ~ "March",
+      "04" ~ "April",
+      "05" ~ "May",
+      "06" ~ "June",
+      "07" ~ "July",
+      "08" ~ "August",
+      "09" ~ "September",
+      "10" ~ "October",
+      "11" ~ "November",
+      "12" ~ "December"))
 ```
 
-Merging `zipcodes` and `zori`:
+#### Zip Code Counts
 
 ```{r}
-zori_zip <- 
-  left_join(
-    zori_neat, 
-    zipcodes, 
-    by = c("zip_code", "county")) %>% 
-  select(
-    zip_code, date, rental_price, county, neighborhood, state, city, metro, 
-    everything())
+zip_counts <- zori_neat %>%
+  drop_na(rental_price) %>% 
+  count(zip_code, name = "times_observed")
 ```
+
+There are `r sum(pull(zip_counts, times_observed) > 115)` zip codes observed 116 times within the Zillow `zori` dataset, and there are `r sum(pull(zip_counts, times_observed) < 10)` zip codes observed less than 10 times within the Zillow `zori` dataset. Zillow is a website that both manages renting and selling of properties, and it is not the only website used within NYC to manage renting properties (StreetEasy being an alternative option). As such, the zip codes which appear more often within the Zillow dataset, such as 10001 or 10003, are in popular locations to live within NYC, whereas zip codes that appear less often, such as 10453, are in less popular locations to live within NYC, which likely reflects the demographic that tend to use Zillow, both from a landlord and renter perspective.
+
+#### Average Rental Price per Borough and Year
+
+Creating a database with the average rental price per year for each borough:
+
+```{r message = FALSE}
+avg_price_year <- zori_neat %>% 
+  group_by(borough, year) %>% 
+  summarize(mean_price = mean(rental_price, na.rm = TRUE)) %>% 
+  pivot_wider(
+    names_from = "borough",
+    values_from = "mean_price"
+  )
+```
+
+
+Creating a table out of the database:
+
+```{r}
+options(knitr.kable.NA = "---")
+knitr::kable(
+  avg_price_year,
+  digits = 1
+)
+```
+
+Within this table, we can see that all boroughs have had an increase in rental price over the past 9 years. Queens has had the smallest overall rent increase, despite Staten Island not having data until 2020, and Manhattan has had the largest overall rent increase.
 
