@@ -272,8 +272,6 @@ avg_price_plots <- avg_price_all_plot + avg_price_month_plot
 ggsave("./results/avg_prices.pdf", avg_price_plots, width = 8, height = 5)
 ```
 
-![Combined Average Price Plots](./results/avg_prices.pdf)
-
 ### Problem 3
 
 #### Importing and Cleaning Data
