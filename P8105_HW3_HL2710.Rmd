@@ -11,6 +11,7 @@ Adjusting settings such that figures and graphs will be readable:
 
 ```{r message = FALSE}
 library(tidyverse)
+library(patchwork)
 
 knitr::opts_chunk$set(
   fig.width = 6,
@@ -239,7 +240,7 @@ avg_price_all_plot <- zori_neat %>%
   ggplot(aes(x = borough, y = rental_price)) +
   geom_boxplot() +
   labs(
-    title = "Borough Prices Across All Years (2015-2024)",
+    title = "Borough Prices Across All Years",
     x = "Borough",
     y = "Rental Price"
   )
@@ -267,4 +268,15 @@ avg_price_month_plot
 
 Within this plot, the borough with the largest variation in rental prices is Manhattan, and the borough with the smallest variation in rental prices is Staten Island. The Bronx, Staten Island, and Queens all have relatively similar and low median rental prices, while Manhattan's is the largest. The overall distribution of the five boroughs is similar in 2023 compared to the plot of all years, but there is more exaggeration of the differences between the boroughs within the 2023 plot, compared to the plot of all years.
 
-[[export plots]]
+#### Combine Plots into a Single Graphic and Export
+
+This is done using the `patchwork` package, which was loaded in the initial setup code block:
+
+```{r warning = FALSE}
+avg_price_plots <- avg_price_all_plot + avg_price_month_plot
+
+avg_price_plots
+
+ggsave("./results/avg_prices.pdf", avg_price_plots, width = 8, height = 5)
+```
+
