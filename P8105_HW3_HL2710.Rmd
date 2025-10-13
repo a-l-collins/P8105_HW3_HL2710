@@ -312,7 +312,6 @@ demographics <-
 demographics
 ```
 
-
 Importing and cleaning the `accelerometer` dataset:
 
 1. Import and clean names
@@ -335,7 +334,6 @@ accelerometer <-
 accelerometer
 ```
 
-
 Merging the `demographics` and `accelerometer` datasets:
 
 - Using `inner_join` so that only those participants in the `accelerometer` dataset with demographic data will be included
@@ -345,4 +343,54 @@ accel_dem <- inner_join(accelerometer, demographics, by = "seqn")
 
 accel_dem
 ```
+
+#### Gender Distribution Graphics
+
+Table of number of men and women in each education category:
+
+1. Grouping by education and counting each gender
+1. Pivoting wider for readability
+1. Creating a table of the information
+
+```{r}
+dem_gencount <-
+  demographics %>% 
+  group_by(education) %>% 
+  count(sex, name = "n") %>% 
+  pivot_wider(
+    names_from = "sex",
+    values_from = "n"
+  )
+
+knitr::kable(
+  dem_gencount,
+  col.names = c("Education", "Female", "Male")
+)
+```
+
+Visualization of age distribution for men and women in each education category:
+
+1. Pivoting `dem_gencount` back to longer for plotting purposes
+
+```{r}
+dem_age_dist <-
+  demographics %>% 
+  ggplot(aes(
+    x = factor(education, level = c("Less than high school", "High school equivalent", "More than high school")), 
+    y = age, 
+    fill = sex)) +
+  geom_boxplot(width = .4) +
+  scale_fill_manual(values = c("palevioletred2", "dodgerblue3")) +
+  xlab("Education Level") +
+  ylab("Age")
+
+dem_age_dist
+```
+
+Trends that can be seen in the table and bar plot are:
+
+- There are more participants in the "more than high school" education level than in the other two levels.
+- While men and women have relatively equivalent number counts for the "less than high school" and "more than high school" education levels, there are more men than women in the "high school equivalent" education level.
+- For both genders, the general trend is that the higher the education level, the lower the individual's age.
+- For "high school equivalent" level, men are on average younger than women.
 
