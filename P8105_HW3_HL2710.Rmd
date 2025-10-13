@@ -394,3 +394,44 @@ Trends that can be seen in the table and bar plot are:
 - For both genders, the general trend is that the higher the education level, the lower the individual's age.
 - For "high school equivalent" level, men are on average younger than women.
 
+#### Plotting Total Activity
+
+Aggregating across minutes to create a total activity variable for each participant:
+
+1. Creating a `total_activity` variable by grouping by `seqn` and summing all `mims` values per participantt
+2. Joining with demographic information
+
+```{r}
+accel_dem_totalmin <-
+  accel_dem %>% 
+  group_by(seqn) %>% 
+  summarize("total_activity" = sum(mims)) %>% 
+  left_join(demographics, by = "seqn")
+```
+
+Plotting this information:
+
+1. Adding the scatterplot points
+1. Adding the trend line
+1. Separating the plots out by education level
+1. Manually adjusting the colors and axis names
+
+```{r message = FALSE}
+totalmin_plot <-
+  accel_dem_totalmin %>% 
+  ggplot(aes(x = age, y = total_activity, color = sex)) +
+  geom_point(aes(color = sex)) +
+  geom_smooth(method = lm, se = FALSE, aes(fill = sex)) +
+  facet_grid(. ~ factor(education, level = c("Less than high school", "High school equivalent", "More than high school"))) +
+  scale_color_manual(values = c("palevioletred2", "dodgerblue3")) +
+  xlab("Age") +
+  ylab("Total Activity")
+
+totalmin_plot
+```
+
+Trends that can be seen in the scatterplot are:
+
+- For all education groups, an individual's total activity level decreases with age
+- Younger individuals in the "less than high school" education group have the highest total activity levels of all groups
+- Women tend to see a higher activity level than men, with exception of older individuals in the "less than high school" education group
