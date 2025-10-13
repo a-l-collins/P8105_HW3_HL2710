@@ -20,14 +20,6 @@ knitr::opts_chunk$set(
 )
 
 theme_set(theme_minimal() + theme(legend.position = "bottom"))
-
-options(
-  ggplot2.continuous.colour = "viridis",
-  ggplot2.continuous.fill = "viridis"
-)
-
-scale_colour_discrete = scale_colour_viridis_d
-scale_fill_discrete = scale_fill_viridis_d
 ```
 
 ### Problem 1
@@ -189,6 +181,8 @@ zori_neat <-
       "10" ~ "October",
       "11" ~ "November",
       "12" ~ "December"))
+
+zori_neat
 ```
 
 #### Zip Code Counts
@@ -275,10 +269,10 @@ This is done using the `patchwork` package, which was loaded in the initial setu
 ```{r warning = FALSE}
 avg_price_plots <- avg_price_all_plot + avg_price_month_plot
 
-avg_price_plots
-
 ggsave("./results/avg_prices.pdf", avg_price_plots, width = 8, height = 5)
 ```
+
+![Combined Average Price Plots](./results/avg_prices.pdf)
 
 ### Problem 3
 
